@@ -8,6 +8,7 @@ export default defineConfig({
       scss: {
         javascriptEnabled: false,
       },
+      base: "/livros-vai-na-web"
     },
   },
 });
