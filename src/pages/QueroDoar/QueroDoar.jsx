@@ -1,14 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import s from "./donate.module.scss";
 
 const QueroDoar = () => {
+  const [formData, setFormData] = useState({
+    titulo: "",
+    categoria: "",
+    autor: "",
+    image_url: "",
+  });
+
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+
+    try {
+      console.log("Enviando:", formData);
+
+      const response = await axios.post(
+        "https://api-livros-px42.onrender.com/doar",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Resposta da API:", response.data);
+      setMessage("✅ Livro cadastrado com sucesso!");
+      setFormData({ titulo: "", categoria: "", autor: "", image_url: "" });
+    } catch (error) {
+      console.error(
+        "Erro ao cadastrar livro:",
+        error.response?.data || error.message
+      );
+      setMessage(
+        `❌ Erro: ${error.response?.data?.message || "Erro desconhecido"}`
+      );
+    }
+  };
+
   return (
     <main className={s.donate}>
       <h1 className={s.donate__title}>
         Por favor, preencha o formulário com suas informações e as informações
         do Livro
       </h1>
-
       <article className={s.donate__form}>
         <h2 className={s.donate__form_title}>
           <svg
@@ -25,38 +69,44 @@ const QueroDoar = () => {
           </svg>
           Informações do Livro
         </h2>
-        <form action="#" method="POST" className={s.donate__form_group}>
+        <form onSubmit={handleSubmit} className={s.donate__form_group}>
           <input
             type="text"
-            id="donation-title"
+            name="titulo"
             className={s.donate__input}
-            placeholder="Titulo"
+            placeholder="Título"
+            value={formData.titulo}
+            onChange={handleChange}
             required
           />
           <input
             type="text"
-            id="donor-category"
+            name="categoria"
             className={s.donate__input}
             placeholder="Categoria"
+            value={formData.categoria}
+            onChange={handleChange}
             required
           />
-
           <input
             type="text"
-            id="donor-author"
+            name="autor"
             className={s.donate__input}
             placeholder="Autor"
+            value={formData.autor}
+            onChange={handleChange}
             required
           />
-
           <input
             type="url"
-            id="donor-img"
+            name="image_url"
             className={s.donate__input}
             placeholder="Link da Imagem"
+            value={formData.image_url}
+            onChange={handleChange}
             required
           />
-
+          {message && <p className={s.donate__message}>{message}</p>}
           <button type="submit" className={s.donate__button}>
             Doar
           </button>
